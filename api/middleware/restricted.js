@@ -1,5 +1,16 @@
-module.exports = (req, res, next) => {
-  next();
+const Users = require("../users/users-model");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../../config");
+
+module.exports = async (req, res, next) => {
+  if (req.headers.authorization == null) return res.status(401).json({ message: "token required" });
+
+  const token = req.headers.authorization;
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) res.status(401).json({ message: "token invalid" });
+    else next();
+  });
+
   /*
     IMPLEMENT
 
