@@ -25,11 +25,11 @@ describe("Jokes endpoint", () => {
       await db("users").truncate();
       await request(server).post("/api/auth/register").send(userEx);
     });
-    it("responds with an error status code on missing token", async () => {
+    it("Gives an error status code on missing token", async () => {
       const response = await request(server).get("/api/jokes");
       expect(response.status + "").toMatch(/4|5/);
     });
-    it('"token required" message given on missing token', async () => {
+    it('Gives a "token required" message given on missing token', async () => {
       const response = await request(server).get("/api/jokes");
       expect(response.text + "").toMatch(/token required/);
     });
