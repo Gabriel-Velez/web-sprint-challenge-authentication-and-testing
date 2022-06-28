@@ -4,6 +4,8 @@ const request = require("supertest");
 const server = require("./server");
 const db = require("../data/dbConfig");
 
+const userEx = { username: "Gabe", password: "password" };
+
 test("sanity", () => {
   expect(true).toBe(true);
 });
@@ -21,7 +23,7 @@ describe("Jokes endpoint", () => {
   describe("GET Request for /api/jokes", () => {
     beforeEach(async () => {
       await db("users").truncate();
-      await request(server).post("/api/auth/register").send(userFive);
+      await request(server).post("/api/auth/register").send(userEx);
     });
     it("responds with an error status code on missing token", async () => {
       const response = await request(server).get("/api/jokes");

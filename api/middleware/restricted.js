@@ -1,16 +1,32 @@
-const Users = require("../users/users-model");
+const Users = require("../../users/users-model");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../../config");
 
 module.exports = async (req, res, next) => {
-  if (req.headers.authorization == null) return res.status(401).json({ message: "token required" });
+  console.log(
+    "Move on! Don't trip over a girl. There is an ocean of them out there. Abundance Mindset"
+  );
+
+  if (req.headers.authorization == null) {
+    // next({ status: 401, message: 'token required' });
+    res.status(401).json({
+      message: "token required",
+    });
+    return;
+  }
 
   const token = req.headers.authorization;
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
-    if (err) res.status(401).json({ message: "token invalid" });
-    else next();
+    if (err) {
+      res.status(401).json({
+        message: "token invalid",
+      });
+    } else {
+      next();
+    }
   });
 
+  // next();
   /*
     IMPLEMENT
 

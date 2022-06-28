@@ -1,29 +1,26 @@
-const router = require('express').Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const router = require("express").Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const User = require("../users/users-model")
-const { BCRYPT_ROUNDS, JWT_SECRET } = require('../../config/index');
+const User = require("../../users/users-model");
+const { BCRYPT_ROUNDS, JWT_SECRET } = require("../../config/index");
 
-router.post('/register', (req, res) => {
-  let user = req.body
+router.post("/register", async (req, res) => {
+  let user = req.body;
 
   let { username, password } = req.body;
 
-  if (!username || !password) 
-    return res.status(400).json({message: "username and password required"})
+  if (!username || !password)
+    return res.status(400).json({ message: "username and password required" });
 
-  let exists = await User.findBy({ username }).first() != null;
-  if (exists) 
-    return res.status(400).json({message: "username taken"})
-      
-  
-  const hash = bcrypt.hashSync(user.password, BCRYPT_ROUNDS)
+  let alreadyExists = (await User.findBy({ username }).first()) != null;
+  if (alreadyExists) return res.status(400).json({ message: "username taken" });
+
+  const hash = bcrypt.hashSync(user.password, BCRYPT_ROUNDS);
   user.password = hash;
-  User.add(user)
-    .then(savedUser => {
-      res.status(201).json(savedUser)
-    })
+  User.add(user).then((savedUser) => {
+    res.status(201).json(savedUser);
+  });
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -51,21 +48,20 @@ router.post('/register', (req, res) => {
   */
 });
 
-router.post('/login', (req, res) => {
-  let { username, password } = req.body
-  if (!username || !password) 
-    return res.status(400).json({message: "username and password required"})
+router.post("/login", (req, res) => {
+  let { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ message: "username and password required" });
 
-  User.findBy({ username })
-    .then(([user]) => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const token = generateToken(user);
-        res.status(200).json({ 
-          message: `Welcome: ${user.username}`, 
-          token 
-        })
-      } else res.status(401).json({message: "invalid credentials"})
-    })
+  User.findBy({ username }).then(([user]) => {
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = generateToken(user);
+      res.status(200).json({
+        message: `Welcome: ${user.username}`,
+        token,
+      });
+    } else res.status(401).json({ message: "invalid credentials" });
+  });
 });
 
 function generateToken(user) {
@@ -73,9 +69,9 @@ function generateToken(user) {
     sub: user.id,
     username: user.username,
   };
-  const options = { expiresIn: '1d' };
+  const options = { expiresIn: "1d" };
   return jwt.sign(payload, JWT_SECRET, options);
-  
+
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
